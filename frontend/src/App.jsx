@@ -5,6 +5,7 @@ import './index.css';
 import ProductAdd from './components/ProductAdd';
 import BillInt from './components/billInterface';
 import UserAuth from './components/userAdd';
+import ProductAnalysis from './Prod-Analysis';
 
 const App = () => {
     return (
@@ -14,6 +15,7 @@ const App = () => {
             <Route path='/ProductAdd' element={<ProductAdd />} />
             <Route path='/userAdd' element={<UserAuth />} />
             <Route path='/Billing' element={<BillInt />} />
+            <Route path="/product-analysis" element={<ProductAnalysis/>}/>
             </Routes>
         </Router>
     );

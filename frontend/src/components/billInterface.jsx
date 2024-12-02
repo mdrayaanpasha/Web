@@ -17,10 +17,14 @@ export default function BillInt() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [creditAmount, setCreditAmount] = useState(0);
+
 
   // GST state and total amount
   const [gstRate, setGstRate] = useState(18);
   const [totalAmount, setTotalAmount] = useState(0);
+
+  
 
   const triggerToast = (message) => {
     setToastMessage(message); 
@@ -29,23 +33,26 @@ export default function BillInt() {
       setShowToast(false);
     }, 3000);
   };
+  const fetchAllProducts = async () => {
+    try {
+      const resp = await axios.get("http://localhost:5000/api/getAllProduct");
+      if (resp.status === 200) {
+        setProducts(resp.data.Data || []);
+      } else {
+        alert(`Unexpected response: ${resp.status}`);
+      }
+    } catch (e) {
+      console.log(e.message);
+      alert(e.response?.status || "Network error");
+    }
+  };
 
   useEffect(() => {
-    const fetchAllProducts = async () => {
-      try {
-        const resp = await axios.get("http://localhost:5000/api/getAllProduct");
-        if (resp.status === 200) {
-          setProducts(resp.data.Data || []);
-        } else {
-          alert(`Unexpected response: ${resp.status}`);
-        }
-      } catch (e) {
-        console.log(e.message);
-        alert(e.response?.status || "Network error");
-      }
-    };
-    fetchAllProducts();
-  }, []);
+    
+    if(isAuthenticated){
+      fetchAllProducts();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     calculateTotal();
@@ -89,16 +96,19 @@ export default function BillInt() {
         const resp = await axios.post("http://localhost:5000/api/billAuth", { Phone: userMobile });
         if (resp.status === 200) {
           setIsAuthenticated(true);
-          setCustomerDetails(resp.data.Data);
 
+          setCustomerDetails(resp.data.Data);
           triggerToast('😃 User Identified!');
-        } else {
-          alert("User Not Found!!");
-          window.location.href = "./userAdd";
-        }
+        } 
       } catch (error) {
-        triggerToast('Error occurred!');
-        console.log(error);
+        if(error.response.status === 402){
+          alert("🥹 User Doesn't Exist!")
+          window.location.href="./userAdd"
+        }else{
+          triggerToast('Error occurred: ',error.response.status);
+          console.log(error);
+        }
+      
       }
     } else {
       alert("Please enter a valid mobile number.");
@@ -108,137 +118,165 @@ export default function BillInt() {
   // PDF Generation Function
   const generatePDF = () => {
     const doc = new jsPDF();
+    
+    // Use a modern font (Helvetica)
+    doc.setFont('helvetica', 'normal');
   
     // Company Details - Centered and Professional
-    doc.setFont('times', 'bold');  // Bold for company name
     doc.setFontSize(22);  // Larger font size for company name
     const companyName = "Royal and Co";
     const companyNameWidth = doc.getStringUnitWidth(companyName) * doc.getFontSize() / doc.internal.scaleFactor;
     const centerX = (doc.internal.pageSize.width - companyNameWidth) / 2;
-    doc.text(companyName, centerX, 20);  // Centered company name
+    doc.text(companyName, centerX, 20);
   
-    doc.setFont('times', 'normal');  // Normal font for address
-    doc.setFontSize(12);  // Smaller font for address
+    // Address Details
+    doc.setFontSize(12);
     const address = [
       "FMCG Manufacturer in Bengaluru, Karnataka",
       "Address: 23, Wellington St, Richmond Town,",
       "Bengaluru, Karnataka 560025"
     ];
-  
-    // Center each line of address
+    
     address.forEach((line, index) => {
       const lineWidth = doc.getStringUnitWidth(line) * doc.getFontSize() / doc.internal.scaleFactor;
       const lineCenterX = (doc.internal.pageSize.width - lineWidth) / 2;
       doc.text(line, lineCenterX, 25 + index * 5);
     });
   
-    // Line separator (under company details)
+    // Separator Line
     doc.setLineWidth(0.5);
     doc.setDrawColor(0, 0, 0);  // Black color
     doc.line(14, 40, 200, 40);  // Horizontal line
-  
+    
     // Invoice Title
     doc.setFontSize(18);
-    doc.setFont('times', 'bold');
-    doc.text("Invoice", 160, 45);  // Positioned on the top-right side
+    doc.setFont('helvetica', 'bold');
+    doc.text("Invoice", 160, 45);
   
     // Customer Details Section
     doc.setFontSize(12);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text(`Customer: ${CustomerDetails[0].Name}`, 14, 60);
     doc.text(`Phone: ${CustomerDetails[0].Phone}`, 14, 65);
     doc.text(`Email: ${CustomerDetails[0].Email}`, 14, 70);
-  
-    // Add line separator for customer info
+    
+    // Line Separator
     doc.setLineWidth(0.5);
-    doc.setDrawColor(200, 200, 200);  // Light gray
-    doc.line(14, 75, 200, 75);  // Horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 75, 200, 75);
   
-    // Add Product Table Header
+    // Product Table Header
     let y = 80;
     doc.setFontSize(12);
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('Product', 14, y);
     doc.text('Quantity', 90, y);
-    doc.text('Price (₹)', 130, y);
-    doc.text('GST (₹)', 160, y);
-    doc.text('Total (₹)', 190, y);
-  
-    // Line separator for product table header
+    doc.text('Price (unit)', 130, y);
+    doc.text('GST', 160, y);
+    doc.text('Total', 190, y);
+    
+    // Line separator after table header
     doc.setLineWidth(0.5);
-    doc.line(14, y + 5, 200, y + 5);  // Horizontal line
+    doc.line(14, y + 5, 200, y + 5);
   
-    // Add Product Details in the table
+    // Product Details in the table
     y += 10;
     let netAmount = 0;
     addedProducts.forEach((product) => {
       const productTotal = product.price * product.quantity;
       const gstAmount = calculateGST(product.price, product.quantity);
       const totalAmount = productTotal + gstAmount;
-  
-      doc.setFont('times', 'normal');
+      
+      doc.setFont('helvetica', 'normal');
       doc.text(product.name, 14, y);
       doc.text(String(product.quantity), 90, y);
-      doc.text(`₹${product.price.toFixed(2)}`, 130, y);
-      doc.text(`₹${gstAmount.toFixed(2)}`, 160, y);
-      doc.text(`₹${totalAmount.toFixed(2)}`, 190, y);
-  
-      // Increment y for the next row
+      doc.text(product.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 130, y);
+      doc.text(gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
+      doc.text(totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 190, y);
+      
       y += 10;
-  
-      // Update net amount (without GST)
       netAmount += productTotal;
     });
-  
+    
     // Line separator after product list
     doc.setLineWidth(0.5);
-    doc.setDrawColor(200, 200, 200);  // Light gray
+    doc.setDrawColor(200, 200, 200);
     doc.line(14, y + 5, 200, y + 5);
-  
+    
     // Calculate Gross Amount and GST
     const totalGST = addedProducts.reduce((acc, product) => acc + calculateGST(product.price, product.quantity), 0);
     const grossAmount = netAmount + totalGST;
   
     // Add Totals Section
     y += 15;
-    doc.setFont('times', 'bold');
-    doc.text('Net Amount (₹)', 130, y);
-    doc.text(`₹${netAmount.toFixed(2)}`, 190, y);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Gross Amount', 100, y);
+    doc.text(netAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
   
     y += 7;
-    doc.text('Total GST (₹)', 130, y);
-    doc.text(`₹${totalGST.toFixed(2)}`, 190, y);
+    doc.text('Total GST', 100, y);
+    doc.text(totalGST.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
   
     y += 7;
-    doc.text('Gross Amount (₹)', 130, y);
-    doc.text(`₹${grossAmount.toFixed(2)}`, 190, y);
+    doc.text('Net Amount', 100, y);
+    doc.text(grossAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
   
-    // Add line separator for totals
+    // Add Credit Section
+    if (creditAmount > 0) {
+      y += 10;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Credit Amount', 100, y);
+      doc.text(creditAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
+      
+      y += 7;
+      const remainingAmount = grossAmount - creditAmount;
+      doc.text('Paid Amount', 100, y);
+      doc.text(remainingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
+    }
+  
+    // Line separator for totals
     doc.setLineWidth(0.5);
-    doc.setDrawColor(0, 0, 0);  // Black color
+    doc.setDrawColor(0, 0, 0);
     doc.line(14, y + 10, 200, y + 10);
   
-    // Add Signature Section
-    y += 20;
-    doc.setFont('times', 'normal');
-    doc.text('Authorized Signature:', 14, y);
-  
-    // Add a line for signature
-    doc.setLineWidth(0.5);
-    doc.line(120, y, 200, y);  // Horizontal line for signature area
   
     // Footer Section
     y += 20;
     doc.setFontSize(10);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text("Thank you for your business!", 14, y);
     y += 5;
     doc.text("For inquiries, contact: +91 123 456 7890 | support@royalandco.com", 14, y);
     doc.text("www.royalandco.com", 14, y + 10);
   
     // Save the PDF
-    doc.save("invoice.pdf");
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
+    doc.save(`RC-Invoice-${timestamp}.pdf`); 
   };
+
+
+  //now one last thing:
+  /*
+    Create API Connection where send Add Product in a nice way.
+    With Credit Amount.
+  */
+
+    const FinalAPI = async()=>{
+      try {
+        const resp = await axios.post("http://localhost:5000/api/FinalTransactionApi",{Products:addedProducts,CreditAmount:creditAmount,CustomerDetails:CustomerDetails[0]});
+        if(resp.status === 200){
+          triggerToast('😀 Bill Successfull!');
+          setTimeout(function() {
+            window.location.href = "/";  
+        }, 3000);
+        }
+      } catch (error) {
+        console.log(error)
+        triggerToast('😥 Internal Server Error!');
+      }
+    }
+
+  
   
 
   return (
@@ -261,7 +299,7 @@ export default function BillInt() {
       <main className="flex flex-col items-center justify-center mt-4">
         {!isAuthenticated ? (
           <div className="w-3/4 mb-4">
-            <h2 className="text-lg font-semibold mb-2">Customer Authentication</h2>
+            <h2 className="text-lg fonclst-semibold mb-2">Customer Authentication</h2>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-1">
                 Enter your mobile number:
@@ -280,10 +318,14 @@ export default function BillInt() {
           <>
             <Button label="Add Product" onClick={() => setIsDialogOpen(true)} />
             <button
-  
-  onClick={generatePDF}
-  className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-black text-white py-3 px-6 rounded-full text-lg shadow-lg hover:bg-gray-800 transition duration-300"
->Generate Bill (PDF) 🎉</button>
+              onClick={()=>{
+                generatePDF();
+                FinalAPI();
+              }}
+              className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-black text-white py-3 px-6 rounded-full text-lg shadow-lg hover:bg-gray-800 transition duration-300"
+            >
+              Generate Bill (PDF) 🎉
+            </button>
             
             {/* Display Added Products */}
             <div className="mt-4 w-3/4">
@@ -314,6 +356,21 @@ export default function BillInt() {
               <h2 className="text-lg font-semibold mb-2">Total Amount:</h2>
               <p>₹{totalAmount.toFixed(2)}</p>
             </div>
+
+            <div className="mt-4 w-3/4">
+            <h2 className="text-lg font-semibold mb-2">Add Credit (₹):</h2>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-1">Enter Credit Amount:</label>
+              <input
+                type="number"
+                value={creditAmount}
+                onChange={(e) => setCreditAmount(Number(e.target.value))}
+                className="border rounded w-full py-2 px-3"
+                placeholder="Enter amount"
+                min="0"
+              />
+            </div>
+          </div>
           </>
         )}
       </main>
@@ -381,6 +438,8 @@ export default function BillInt() {
               <Button label="Add" onClick={handleAddProduct} />
             </div>
           </div>
+
+          
         </div>
       )}
     </>
