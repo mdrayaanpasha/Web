@@ -216,9 +216,12 @@ app.post("/api/FinalTransactionApi",async(req,res)=>{
     
     TotalCost+=price + GST;
     products.push({PID:product._id,Unit:product.quantity})
+    
+
  
 
   }
+
 
 
   //holds data to be stored iin TransactionModel.
@@ -231,7 +234,7 @@ app.post("/api/FinalTransactionApi",async(req,res)=>{
     Credit:ClientData.CreditAmount
   }
 
-
+console.log(TransactionModelData)
   //Task 1: Add Data in Transaction Model With Credit Check.
   try {
     await transactionModel.create(TransactionModelData);
@@ -250,12 +253,13 @@ app.post("/api/FinalTransactionApi",async(req,res)=>{
       Year:today.getFullYear(),
       Month: today.getMonth(),
       Products: products
+      
   }
-
   try {
-    await CustomerModel.updateOne({_id:ClientData.CustomerDetails._id},
+    const h = await CustomerModel.updateOne({_id:ClientData.CustomerDetails._id},
       {$push : {Purchase_History : Purchase_History_Ele}}
     )
+
 
   } catch (error) {
     console.log(error)
@@ -326,7 +330,6 @@ app.post("/api/getProductById",async(req,res)=>{
   }
   try {
     const data = await ProductModel.findById(id)
-    console.log(data)
     
     if (!data) {
       return res.status(404).json({ message: "Product not found" });
@@ -339,6 +342,27 @@ app.post("/api/getProductById",async(req,res)=>{
   }
 })
 
+
+
+app.post("/api/getCustomerData",async(req,res)=>{
+  const id = req.body.CN;
+
+  if (!id){
+    res.status(400).json({message:"Customer Not there!"})
+  }
+  try {
+    const data = await CustomerModel.find({Phone:id})
+    
+    if (!data) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    res.status(200).json({Data:data});
+   
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 // Start server
 app.listen(port, () => {
