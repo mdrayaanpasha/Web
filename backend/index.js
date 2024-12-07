@@ -216,8 +216,6 @@ app.post("/api/FinalTransactionApi",async(req,res)=>{
     
     TotalCost+=price + GST;
     products.push({PID:product._id,Unit:product.quantity})
-    
-
  
 
   }
@@ -234,7 +232,7 @@ app.post("/api/FinalTransactionApi",async(req,res)=>{
     Credit:ClientData.CreditAmount
   }
 
-console.log(TransactionModelData)
+
   //Task 1: Add Data in Transaction Model With Credit Check.
   try {
     await transactionModel.create(TransactionModelData);
@@ -251,15 +249,9 @@ console.log(TransactionModelData)
   //Task 2: Update Customers Purchase History:
   const Purchase_History_Ele = {
       Year:today.getFullYear(),
-<<<<<<< HEAD
       Month: today.getMonth()+1,
       Products: products,
       Product:products,
-=======
-      Month: today.getMonth(),
-      Products: products
-      
->>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
   }
   try {
     const h = await CustomerModel.updateOne({_id:ClientData.CustomerDetails._id},
@@ -336,10 +328,6 @@ app.post("/api/getProductById",async(req,res)=>{
   }
   try {
     const data = await ProductModel.findById(id)
-<<<<<<< HEAD
-=======
-    
->>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
     if (!data) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -361,11 +349,7 @@ app.post("/api/getCustomerData",async(req,res)=>{
   }
   try {
     const data = await CustomerModel.find({Phone:id})
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
     if (!data) {
       return res.status(404).json({ message: "Customer not found" });
     }
@@ -377,7 +361,6 @@ app.post("/api/getCustomerData",async(req,res)=>{
   }
 })
 
-<<<<<<< HEAD
 
 /*
 POST: api/getCustomerDebt
@@ -409,8 +392,6 @@ app.post("/api/getCustomerDebt",async(req,res)=>{
 
 
 
-=======
->>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
 // Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
