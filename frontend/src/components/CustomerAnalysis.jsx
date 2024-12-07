@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
@@ -14,10 +15,20 @@ import {
 } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend);
+=======
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+// Register necessary components for Chart.js
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+>>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
 
 export default function CustomerAnalysis() {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
+<<<<<<< HEAD
     const CustomerNumber = queryParams.get("CN");
     const [CustomerInfo, setCustomerInfo] = useState(null);
     const [purchaseHistory, setPurchaseHistory] = useState([]);
@@ -37,6 +48,22 @@ export default function CustomerAnalysis() {
                         Phone: data[0].Phone,
                         Name: data[0].Name,
                     });
+=======
+    const CustomerNumber = queryParams.get('CN');
+
+    const [purchaseHistory, setPurchaseHistory] = useState([]);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());  // Default to current year
+
+    // Fetch customer data
+    const FetchCustomerData = async () => {
+        try {
+            const resp = await axios.post('http://localhost:5000/api/getCustomerData', { CN: CustomerNumber });
+            if (resp.status === 200) {
+                const data = resp.data.Data;
+                if (Array.isArray(data) && data.length > 0) {
+                    console.log(data[0]?.Purchase_History || [])
+                    setPurchaseHistory(data[0]?.Purchase_History || []); // Set purchase history
+>>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
                 } else {
                     console.log("No customer data found or empty array");
                 }
@@ -46,6 +73,7 @@ export default function CustomerAnalysis() {
         }
     };
 
+<<<<<<< HEAD
     const getDebtData = async (cid) => {
         try {
             const resp = await axios.post("http://localhost:5000/api/getCustomerDebt", { CID: cid });
@@ -69,10 +97,25 @@ export default function CustomerAnalysis() {
                 });
             }
         });
+=======
+    // Group purchase data by month and sum units for the selected year
+    const groupDataByMonth = () => {
+        const monthlyData = Array(12).fill(0);  // Initialize an array for 12 months
+
+        purchaseHistory.forEach((product) => {
+            if (product.Year === selectedYear){
+                    // Add units to the corresponding month
+                    const monthIndex = product.Month - 1;  // Month is 1-12, index is 0-11
+                    monthlyData[monthIndex] += product[1];
+                }
+        })
+        
+>>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
 
         return monthlyData;
     };
 
+<<<<<<< HEAD
     const linearRegression = (data) => {
         const n = data.length;
         const x = Array.from({ length: n }, (_, i) => i + 1);
@@ -187,12 +230,15 @@ export default function CustomerAnalysis() {
         return new Intl.NumberFormat("en-IN").format(credit);
     };
 
+=======
+>>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
     useEffect(() => {
         if (CustomerNumber) {
             FetchCustomerData();
         }
     }, [CustomerNumber]);
 
+<<<<<<< HEAD
     useEffect(() => {
         if (CustomerInfo) {
             getDebtData(CustomerInfo.CID);
@@ -312,5 +358,62 @@ export default function CustomerAnalysis() {
                 )}
             </div>
         </div>
+=======
+    // Prepare data for the graph
+    const prepareGraphData = () => {
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        const purchases = groupDataByMonth();  // Get total units for each month
+
+        return {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Monthly Purchases',
+                    data: purchases,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                },
+            ],
+        };
+    };
+
+    // Options for the Bar chart
+    const options = {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,  // Ensure the y-axis starts at 0
+                ticks: {
+                    stepSize: 1,  // Adjust this for better visualization based on data
+                },
+            },
+        },
+    };
+
+    return (
+        <>
+            <h2>Monthly Purchases for Customer {CustomerNumber}</h2>
+            {/* Dropdown to select year */}
+            <select onChange={(e) => setSelectedYear(Number(e.target.value))} value={selectedYear}>
+                {[2023, 2024, 2025].map((year) => (
+                    <option key={year} value={year}>
+                        {year}
+                    </option>
+                ))}
+            </select>
+
+            {/* Render the chart if data exists */}
+            {purchaseHistory.length > 0 ? (
+                <Bar data={prepareGraphData()} options={options} />
+            ) : (
+                <p>No purchase history available for this customer.</p>
+            )}
+        </>
+>>>>>>> 2d2404216954b994c2e3b28f33d332de75b3c5be
     );
 }
