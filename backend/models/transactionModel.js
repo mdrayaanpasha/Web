@@ -5,12 +5,7 @@ const TransactionModelSchema = new mongoose.Schema({
     NetAmt: Number,
     Y: Number,
     M: Number,
-    ProductList: [
-        {
-            PID: String,
-            Unit: Number,
-        }
-    ],
+    ProductList:Array,
     Credit:Number
 });
 

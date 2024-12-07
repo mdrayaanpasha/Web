@@ -52,6 +52,7 @@ export default function ProductAnalysis() {
         const resp = await axios.post('http://localhost:5000/api/getProductById', { Id: PID });
         if (resp.status === 200) {
           setProductData(resp.data.Data);
+
           processSalesData(resp.data.Data.Sales_History);
         }
       } catch (error) {
@@ -162,14 +163,35 @@ export default function ProductAnalysis() {
     return (
       <div className="h-screen w-full flex flex-col justify-between bg-white text-gray-800">
         <main className="flex-1 overflow-y-auto p-8">
-          {productData && (
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold">Product Details</h2>
-              <p><strong>Name:</strong> {productData.name}</p>
-              <p><strong>Category:</strong> {productData.category}</p>
-              <p><strong>GST Rate:</strong> {productData.GST_RATE}</p>
-            </div>
-          )}
+        {productData && (
+  <div className="mb-8 p-6 rounded-lg shadow-lg bg-white">
+    <h2 className="text-3xl font-semibold text-gray-800 mb-4">Product Details</h2>
+    
+    <div className="space-y-4">
+      <p className="text-lg"><strong>Name:</strong> {productData.name}</p>
+      <p className="text-lg"><strong>Category:</strong> {productData.category}</p>
+      <p className="text-lg"><strong>GST Rate:</strong> {productData.GST_RATE}</p>
+
+      {/* Last Sold */}
+      <p className="text-lg"><strong>Last Sold on:</strong> 
+        {new Date(productData.Last_Sold).toLocaleDateString("en-IN")}
+      </p>
+
+      {/* % Increase in Sales */}
+      <strong className="text-xl text-gray-800">
+        {productData["Sales_History"].length > 1
+          ? (
+              (productData["Sales_History"][productData["Sales_History"].length - 1]["Units"] / 
+               productData["Sales_History"][productData["Sales_History"].length - 2]["Units"] * 100)
+              .toFixed(2)
+            )
+          : 0 }% Increase in sales from previous month.
+      </strong>
+    </div>
+  </div>
+)}
+
+
   
           <div className="mt-6 text-center">
             <label htmlFor="yearInput" className="text-lg font-medium text-gray-700 mr-4">Select Year:</label>
@@ -193,20 +215,29 @@ export default function ProductAnalysis() {
   
               <div className="mt-8">
                 <h3 className="text-xl font-semibold text-gray-700">Sales Trend with Linear Regression</h3>
-                <Line data={chartData} />
+                  <Line data={chartData} />
               </div>
   
-              <div className="mt-8">
-                <h3 className="text-xl font-semibold text-gray-700">Sales Distribution</h3>
-                <Pie data={pieChartData} />
-              </div>
-  
+              
+
+              <div className="flex items-center justify-evenly">
               <div className="mt-8">
                 <h3 className="text-xl font-semibold text-gray-700">Radar Chart: Monthly Comparison</h3>
-                <Radar data={radarChartData} />
+                <div style={{ width: '300px', height: '300px' }}> {/* Adjusted Radar Chart size */}
+                  <Radar data={radarChartData} />
+                </div>
+            </div>
+
+            <div className="mt-8">
+                <h3 className="text-xl font-semibold text-gray-700">Sales Distribution</h3>
+                <div style={{ width: '300px', height: '300px' }}> {/* Adjusted Pie Chart size */}
+                  <Pie data={pieChartData} />
+                </div>
               </div>
   
-              <div className="mt-8">
+              
+            </div>
+            <div className="mt-8">
                 <h3 className="text-xl font-semibold">Statistical Analysis</h3>
                 <p><strong>Mean Sales:</strong> {statsData.mean} units</p>
                 <p><strong>Standard Deviation:</strong> {statsData.stdev} units</p>
@@ -214,6 +245,8 @@ export default function ProductAnalysis() {
                 <p><strong>Max Sales:</strong> {statsData.max} units</p>
               </div>
             </div>
+
+            
           )}
         </main>
       </div>

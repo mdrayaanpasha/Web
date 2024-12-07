@@ -221,6 +221,7 @@ app.post("/api/FinalTransactionApi",async(req,res)=>{
   }
 
 
+
   //holds data to be stored iin TransactionModel.
   const TransactionModelData = {
     CID: ClientData.CustomerDetails._id,
@@ -248,14 +249,15 @@ app.post("/api/FinalTransactionApi",async(req,res)=>{
   //Task 2: Update Customers Purchase History:
   const Purchase_History_Ele = {
       Year:today.getFullYear(),
-      Month: today.getMonth(),
-      Products: products
+      Month: today.getMonth()+1,
+      Products: products,
+      Product:products,
   }
-
   try {
-    await CustomerModel.updateOne({_id:ClientData.CustomerDetails._id},
+    const h = await CustomerModel.updateOne({_id:ClientData.CustomerDetails._id},
       {$push : {Purchase_History : Purchase_History_Ele}}
     )
+
 
   } catch (error) {
     console.log(error)
@@ -326,8 +328,6 @@ app.post("/api/getProductById",async(req,res)=>{
   }
   try {
     const data = await ProductModel.findById(id)
-    console.log(data)
-    
     if (!data) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -338,6 +338,58 @@ app.post("/api/getProductById",async(req,res)=>{
     console.log(error)
   }
 })
+
+
+
+app.post("/api/getCustomerData",async(req,res)=>{
+  const id = req.body.CN;
+
+  if (!id){
+    res.status(400).json({message:"Customer Not there!"})
+  }
+  try {
+    const data = await CustomerModel.find({Phone:id})
+
+    if (!data) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    res.status(200).json({Data:data});
+   
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+/*
+POST: api/getCustomerDebt
+req.body: CID -> customer ID.
+
+- get all customer transaction where Credit > 0 from transactionModel
+
+*/
+
+
+
+app.post("/api/getCustomerDebt",async(req,res)=>{
+  const clientData = req.body
+  try {
+    const result = await transactionModel.aggregate([
+      { $match: { CID: clientData.CID, Credit: { $gt: 0 } } },
+      { $group: { _id: null, totalCredit: { $sum: "$Credit" } } }
+    ]);
+
+    
+    const totalCredit = result.length > 0 ? result[0].totalCredit : 0;
+    res.status(200).json({message:"Successfully Performed!",Credit:totalCredit})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({message:"internal Err"})
+  }
+})
+
+
 
 
 // Start server
