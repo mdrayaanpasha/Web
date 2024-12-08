@@ -191,8 +191,8 @@ export default function Home() {
           
             
                 <a
-                className="group flex items-center justify-between gap-4 rounded-lg border border-current px-5 py-3 text-black transition-colors hover:bg-black focus:outline-none focus:ring active:bg-indigo-500"
-                href="#"
+                className="w-full group flex items-center justify-between gap-4 rounded-lg border border-current px-5 py-3 text-black transition-colors hover:bg-black focus:outline-none focus:ring active:bg-indigo-500"
+                href="./PA"
                 >
                 <span className="font-medium transition-colors group-hover:text-white"> Product Analysis </span>
 
@@ -216,11 +216,40 @@ export default function Home() {
                 </span>
                 </a>
 
+                
+
+
+                
                 <a
-                className="group flex items-center justify-between gap-4 rounded-lg border border-current px-5 py-3 text-black transition-colors hover:bg-black focus:outline-none focus:ring active:bg-indigo-500"
-                href="#"
+                className="w-full group flex items-center justify-between gap-4 rounded-lg border border-current px-5 py-3 text-black transition-colors hover:bg-black focus:outline-none focus:ring active:bg-indigo-500"
+                href="./CA"
                 >
                 <span className="font-medium transition-colors group-hover:text-white"> Customer Analysis </span>
+
+                <span
+                    className="shrink-0 rounded-full border border-black bg-white p-2 group-active:border-indigo-500"
+                >
+                    <svg
+                    className="size-5 rtl:rotate-180"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                    </svg>
+                </span>
+                </a>
+                <a
+                className="w-full group flex items-center justify-between gap-4 rounded-lg border border-current px-5 py-3 text-black transition-colors hover:bg-black focus:outline-none focus:ring active:bg-indigo-500"
+                href="./userAdd"
+                >
+                <span className="font-medium transition-colors group-hover:text-white"> Add Customer </span>
 
                 <span
                     className="shrink-0 rounded-full border border-black bg-white p-2 group-active:border-indigo-500"

@@ -140,6 +140,11 @@ export default function ProductAdd() {
           </div>
         </form>
       </div>
+      <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center fixed bottom-5 right-5 hover:cursor-pointer" onClick={e=>window.location.href="./"}>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2d2d2d">
+                    <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/>
+                </svg>
+            </div>
     </div>
   );
 }

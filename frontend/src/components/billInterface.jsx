@@ -4,6 +4,8 @@ import Button from "./button";
 import Toast from "./toast";
 import { jsPDF } from "jspdf";  // Import jsPDF for PDF generation
 
+import Nav from "./Nav"
+
 export default function BillInt() {
   const [Products, setProducts] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -283,26 +285,15 @@ export default function BillInt() {
     <>
       {showToast && <Toast message={toastMessage} />}
       
-      <nav className="w-full h-20 bg-gray-100 shadow-sm flex justify-between items-center px-4">
-        <h1 className="text-2xl font-bold">Billing</h1>
-        
-        {/* Customer Info Section */}
-        {isAuthenticated && CustomerDetails && (
-          <div className="text-right">
-            <p className="text-lg font-semibold">{CustomerDetails[0].Name}</p>
-            <p className="text-sm">📱 {CustomerDetails[0].Phone}</p>
-            <p className="text-sm">✉️ {CustomerDetails[0].Email}</p>
-          </div>
-        )}
-      </nav>
+      <Nav></Nav>
 
       <main className="flex flex-col items-center justify-center mt-4">
         {!isAuthenticated ? (
           <div className="w-3/4 mb-4">
-            <h2 className="text-lg fonclst-semibold mb-2">Customer Authentication</h2>
+            <h2 className="text-lg text-gray-800 font-bold mb-2 px-3 py-3  bg-gray-100 rounded-lg ">Customer Authentication</h2>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-1">
-                Enter your mobile number:
+                Enter Customers mobile number:
               </label>
               <input
                 type="text"
@@ -373,8 +364,12 @@ export default function BillInt() {
           </div>
           </>
         )}
+        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center fixed bottom-5 right-5 hover:cursor-pointer" onClick={e=>window.location.href="./"}>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2d2d2d">
+                    <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/>
+                </svg>
+            </div>
       </main>
-
       {/* Dialog */}
       {isDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
