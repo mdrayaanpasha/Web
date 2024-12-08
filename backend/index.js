@@ -392,6 +392,139 @@ app.post("/api/getCustomerDebt",async(req,res)=>{
 
 
 
+/*
+
+=> GET: /api/central
+
+================================PURPOSE================================
+
+- Fetch Transaction Data, Make X Axis as Month & Y as Sales. For Every Year. ✅
+- Find Top 3 Most Selling Products. ✅
+- Find Top 3 Least Selling Products. ✅
+- Find Top 3 Customers.✅
+
+=======================================================================
+
+yearBased -> Total Sale p/m for all years.
+TopCustomers -> Top 3 Customers.
+MostSold -> Top 3 Prods
+LeastSold -> Least 3 prods
+*/
+
+
+app.get("/api/central",async function(req, res){
+  try {
+    const Data = await transactionModel.find();
+    const yearBased = {}
+    const CustomerBased = {}
+
+    for (let ele of Data) {
+        const key = `${ele['Y']}-${ele['M']}`;
+        
+        if (!yearBased[key]) {
+            yearBased[key] = 0;
+        }
+
+        yearBased[key] += ele['NetAmt'];
+        CustomerBased[ele.CID] = ele.NetAmt; 
+    }
+
+
+    const CustomersortedEntries = Object.entries(CustomerBased).sort((a, b) => a[1] - b[1]);
+        
+    const TopCustomers = CustomersortedEntries.slice(-3).reverse();
+    for(let customer of TopCustomers) {
+        const customerData = await CustomerModel.findById(customer[0])
+        if (customerData) {
+          customer.push(customerData.Name);
+        }
+    }
+
+     
+
+
+ 
+
+     const MonthNow = new Date().getMonth() + 1;
+     const products = await ProductModel.find().select('_id Sales_History');
+     
+     let Sales={}
+     for(let ele of products){
+      if (ele.Sales_History.length > 0){
+        for(let sale of ele.Sales_History){
+          if (sale.Month >= MonthNow){
+            Sales[ele._id] = sale.Units 
+          }
+        }
+      }
+     }
+
+     const sortedEntries = Object.entries(Sales).sort((a, b) => a[1] - b[1]);
+    
+    const MostSold = sortedEntries.slice(-5).reverse();
+    
+    for(let ele of MostSold){
+      const productData = await ProductModel.findById(ele[0])
+      if (productData) {
+        ele.push(productData.name);
+      }
+    }
+    const LeastSold = sortedEntries.slice(0,3);
+
+    for(let ele of LeastSold) {
+      const productData = await ProductModel.findById(ele[0])
+      if (productData) {
+        ele.push(productData.name);
+      }
+    }
+
+    //finalised Data For Clients.
+    const Toclient = {
+      YearBased:yearBased,
+      TopCustomers: TopCustomers,
+      MostSold: MostSold,
+      LeastSold: LeastSold,
+    }
+
+    res.status(200).json(Toclient);
+
+
+
+    
+
+   
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+})
+
+
+
+
+app.post("/api/CustomerCheck", async (req, res) => {
+  const { CN, CM } = req.body;
+
+  try {
+    let customer;
+    if (CN) {
+      customer = await CustomerModel.findOne({ Name: { $regex: CN, $options: 'i' } });
+    }
+
+    if (!customer && CM) {
+      customer = await CustomerModel.findOne({ Phone: CM });
+    }
+
+    if (customer) {
+      return res.status(200).json({ number: customer.Phone });
+    } else {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
