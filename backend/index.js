@@ -1,25 +1,35 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 
+dotenv.config(); // Load environment variables
+
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
-// MongoDB URI for Mongoose
-const uri = "mongodb+srv://Admin101:K_HpGC_ZweZD2h2@webroyalco.oaatc.mongodb.net/WebRoyalCo?retryWrites=true&w=majority&appName=WebRoyalCo";
-// Connect Mongoose to MongoDB
-mongoose.connect(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+// Middleware
+app.use(cors());
+app.use(express.json()); // To parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-  .then(() => {
-    console.log("Successfully connected to MongoDB using Mongoose");
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
-  .catch((err) => {
-    console.error("Error connecting to MongoDB", err);
+  .then(() => {
+    console.log('MongoDB connected');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
   });
+
+
+
+
 
 // MongoDB Models
 import ProductModel from './models/productModel.js';
