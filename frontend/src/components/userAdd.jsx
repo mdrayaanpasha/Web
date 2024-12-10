@@ -17,7 +17,7 @@ export default function UserAuth() {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth", {
+      const response = await axios.post("https://royalco-api.onrender.com/api/auth", {
         Name: name,
         Email: email,
         Phone: phone,

@@ -28,7 +28,7 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/central");
+      const response = await axios.get("https://royalco-api.onrender.com/api/central");
       const data = response.data;
 
       const allMonths = generateMonths();
