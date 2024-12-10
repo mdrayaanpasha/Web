@@ -1,0 +1,39 @@
+{
+    "routes": [
+        {
+            "src": "/",
+            "dest": "/"
+        },
+        {
+            "src": "/product-analysis",
+            "dest": "/"
+        },
+        {
+            "src": "/customer-analysis",
+            "dest": "/"
+        },
+
+        {
+            "src": "/Billing'",
+            "dest": "/"
+        },
+
+        {
+            "src": "/userAdd",
+            "dest": "/"
+        },
+        {
+            "src": "/ProductAdd",
+            "dest": "/"
+        },
+        {
+            "src": "/PA",
+            "dest": "/"
+        },
+        {
+            "src": "/CA",
+            "dest": "/"
+        }
+    ]
+}
+           
