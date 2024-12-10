@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Nav from "./Nav";
 
 export default function UserAuth() {
   const [name, setName] = useState("");
@@ -35,6 +36,8 @@ export default function UserAuth() {
   };
 
   return (
+    <>
+    <Nav></Nav>
     <div className="flex justify-center items-center min-h-screen bg-white">
       <div className="bg-white p-6 rounded-lg shadow-md w-96 border border-black">
         <h2 className="text-xl font-semibold mb-4 text-black">User Authentication</h2>
@@ -83,6 +86,12 @@ export default function UserAuth() {
 
         {message && <p className="mt-4 text-center text-black">{message}</p>}
       </div>
+      <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center fixed bottom-5 right-5 hover:cursor-pointer" onClick={e=>window.location.href="./"}>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2d2d2d">
+                    <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/>
+                </svg>
+            </div>
     </div>
+    </>
   );
 }
