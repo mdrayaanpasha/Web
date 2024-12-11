@@ -26,7 +26,7 @@ export default function CustomerAnalysis() {
 
     const FetchCustomerData = async () => {
         try {
-            const resp = await axios.post("http://localhost:5000/api/getCustomerData", { CN: CustomerNumber });
+            const resp = await axios.post("https://royalco-api.onrender.com/api/getCustomerData", { CN: CustomerNumber });
             if (resp.status === 200) {
                 const data = resp.data.Data;
                 if (Array.isArray(data) && data.length > 0) {
@@ -48,7 +48,7 @@ export default function CustomerAnalysis() {
 
     const getDebtData = async (cid) => {
         try {
-            const resp = await axios.post("http://localhost:5000/api/getCustomerDebt", { CID: cid });
+            const resp = await axios.post("https://royalco-api.onrender.com/api/getCustomerDebt", { CID: cid });
             if (resp.status === 200) {
                 setCredit(resp.data.Credit);
             }
