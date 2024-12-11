@@ -48,7 +48,7 @@ export default function ProductAnalysis() {
   
     const FetchProductData = async () => {
       try {
-        const resp = await axios.post('http://localhost:5000/api/getProductById', { Id: PID });
+        const resp = await axios.post('https://royalco-api.onrender.com/api/api/getProductById', { Id: PID });
         if (resp.status === 200) {
           setProductData(resp.data.Data);
 
