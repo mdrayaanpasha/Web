@@ -18,7 +18,7 @@ export default function CentralCustomerAnalysis() {
 
   const GetCustomerInfo = async()=>{
     try {
-        const response = await axios.post("http://localhost:5000/api/CustomerCheck",{CN:customerName,CM:customerMobile})
+        const response = await axios.post("https://royalco-api.onrender.com/api/CustomerCheck",{CN:customerName,CM:customerMobile})
         console.log(response.data)
         if(response.status === 200){
             setCustomerMobile(response.data.number)
