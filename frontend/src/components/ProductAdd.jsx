@@ -39,7 +39,7 @@ export default function ProductAdd() {
     // Implement further functionality like API calls here
 
     try {
-        const resp = await axios.post("http://localhost:5000/api/addProduct",{Data:formData});
+        const resp = await axios.post("https://royalco-api.onrender.com/api/addProduct",{Data:formData});
         if(resp.status === 201){
             alert("Voila Added!")
         }
