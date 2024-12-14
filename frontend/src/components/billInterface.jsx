@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Button from "./button";
 import Toast from "./toast";
 import { jsPDF } from "jspdf";  // Import jsPDF for PDF generation
-
+import logo from "../assets/imgs/R&C_logo.png"
 import Nav from "./Nav"
 
 export default function BillInt() {
@@ -117,94 +117,131 @@ export default function BillInt() {
     }
   };
 
-  // PDF Generation Function
   const generatePDF = () => {
     const doc = new jsPDF();
+    let y = 48; 
     
-    // Use a modern font (Helvetica)
-    doc.setFont('helvetica', 'normal');
+    // Add Logo at the top
+    const logoWidth = 30; // Adjust width
+    const logoHeight = 30; // Adjust height
+    doc.addImage(logo, 'PNG', 8, 5, logoWidth, logoHeight);
   
     // Company Details - Centered and Professional
-    doc.setFontSize(22);  // Larger font size for company name
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22); // Larger font size for company name
     const companyName = "Royal and Co";
     const companyNameWidth = doc.getStringUnitWidth(companyName) * doc.getFontSize() / doc.internal.scaleFactor;
     const centerX = (doc.internal.pageSize.width - companyNameWidth) / 2;
-    doc.text(companyName, centerX, 20);
+    doc.text(companyName, centerX, 18);
   
     // Address Details
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
     const address = [
       "FMCG Manufacturer in Bengaluru, Karnataka",
       "Address: 23, Wellington St, Richmond Town,",
       "Bengaluru, Karnataka 560025"
     ];
-    
+  
     address.forEach((line, index) => {
       const lineWidth = doc.getStringUnitWidth(line) * doc.getFontSize() / doc.internal.scaleFactor;
       const lineCenterX = (doc.internal.pageSize.width - lineWidth) / 2;
       doc.text(line, lineCenterX, 25 + index * 5);
     });
   
-    // Separator Line
+    // Separator Line after company address
     doc.setLineWidth(0.5);
     doc.setDrawColor(0, 0, 0);  // Black color
     doc.line(14, 40, 200, 40);  // Horizontal line
-    
-    // Invoice Title
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text("Invoice", 160, 45);
   
-    // Customer Details Section
+    // Add gap after the separator line
+  
+    // Invoice Title
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text("Invoice", 90, y);
+  
+    // Add date to the right of the Invoice title
+    const date = new Date().toLocaleDateString('en-IN');
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Customer: ${CustomerDetails[0].Name}`, 14, 60);
-    doc.text(`Phone: ${CustomerDetails[0].Phone}`, 14, 65);
-    doc.text(`Email: ${CustomerDetails[0].Email}`, 14, 70);
-    
-    // Line Separator
+    doc.text(date, 180, y + 7);
+  
+    // Customer Details Section (Modern Table)
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    let customerY = y + 15;
+  
+    const customerDetails = [
+      ['Customer', CustomerDetails[0].Name],
+      ['Phone', CustomerDetails[0].Phone],
+      ['Email', CustomerDetails[0].Email],
+    ];
+  
+    const sectionStartX = 14;
+    const sectionStartY = customerY;
+    const labelWidth = 40;
+    const fieldWidth = 90;
+  
+    // Draw the customer details as labeled sections with less gap
+    customerDetails.forEach((detail, index) => {
+      const y = sectionStartY + index * 9; // Reduced the gap between rows to 9
+  
+      // Label (e.g., Customer, Phone, Email)
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(detail[0], sectionStartX, y); 
+  
+      // Field value (e.g., Customer Name, Phone number, Email)
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(detail[1], sectionStartX + labelWidth, y); 
+    });
+  
+    // Line Separator after customer table
+    y = customerY + 30;
     doc.setLineWidth(0.5);
     doc.setDrawColor(200, 200, 200);
-    doc.line(14, 75, 200, 75);
+    doc.line(14, y, 200, y);
   
     // Product Table Header
-    let y = 80;
-    doc.setFontSize(12);
+    y += 8;
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Product', 14, y);
     doc.text('Quantity', 90, y);
     doc.text('Price (unit)', 130, y);
     doc.text('GST', 160, y);
     doc.text('Total', 190, y);
-    
+  
     // Line separator after table header
     doc.setLineWidth(0.5);
     doc.line(14, y + 5, 200, y + 5);
   
     // Product Details in the table
-    y += 10;
+    y += 15;
     let netAmount = 0;
     addedProducts.forEach((product) => {
       const productTotal = product.price * product.quantity;
       const gstAmount = calculateGST(product.price, product.quantity);
       const totalAmount = productTotal + gstAmount;
-      
+  
       doc.setFont('helvetica', 'normal');
       doc.text(product.name, 14, y);
       doc.text(String(product.quantity), 90, y);
-      doc.text(product.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 130, y);
-      doc.text(gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
-      doc.text(totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 190, y);
-      
+      doc.text(product.price.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 130, y);
+      doc.text(gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 160, y);
+      doc.text(totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 190, y);
+  
       y += 10;
       netAmount += productTotal;
     });
-    
+  
     // Line separator after product list
     doc.setLineWidth(0.5);
     doc.setDrawColor(200, 200, 200);
     doc.line(14, y + 5, 200, y + 5);
-    
+  
     // Calculate Gross Amount and GST
     const totalGST = addedProducts.reduce((acc, product) => acc + calculateGST(product.price, product.quantity), 0);
     const grossAmount = netAmount + totalGST;
@@ -212,50 +249,90 @@ export default function BillInt() {
     // Add Totals Section
     y += 15;
     doc.setFont('helvetica', 'bold');
-    doc.text('Gross Amount', 100, y);
-    doc.text(netAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
+    doc.text('Gross Amount', 135, y);
+    doc.text(netAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
   
     y += 7;
-    doc.text('Total GST', 100, y);
-    doc.text(totalGST.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
+    doc.text('Total GST', 135, y);
+    doc.text(totalGST.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
   
-    y += 7;
-    doc.text('Net Amount', 100, y);
-    doc.text(grossAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
+    
   
     // Add Credit Section
     if (creditAmount > 0) {
-      y += 10;
+      y += 7;
       doc.setFont('helvetica', 'bold');
-      doc.text('Credit Amount', 100, y);
-      doc.text(creditAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
-      
+      doc.text('Credit Amount', 135, y);
+      doc.text(creditAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
+  
       y += 7;
       const remainingAmount = grossAmount - creditAmount;
-      doc.text('Paid Amount', 100, y);
-      doc.text(remainingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 160, y);
+      doc.text('Paid Amount', 135, y);
+      doc.text(remainingAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
     }
+
+    y += 7;
+    doc.text('Net Amount', 135, y);
+    doc.text(grossAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
   
     // Line separator for totals
     doc.setLineWidth(0.5);
-    doc.setDrawColor(0, 0, 0);
+    doc.setDrawColor(140, 140,140);
     doc.line(14, y + 10, 200, y + 10);
   
+
+
+    doc.text("Company Bank Details", 13, y+20);
+
+    // Bank Details Section (Modern Table)
+    const bankDetails = [
+      ['Bank Name', 'AXIS BANK LTD'],
+      ['A/c No', '923020000708063'],
+      ['Branch & IFSC', 'JC ROAD,BANGALORE 560002 - UTIBO001688']
+    ];
+  
+    // Draw the bank table
+    const bankTableY = y + 25;
+    bankDetails.forEach((line, index) => {
+      const cellWidth = [60, 130];
+      const x = 14;
+      const y = bankTableY + index * 12;
+  
+      // Set light grey color for cell background
+      doc.setFillColor(255, 255, 255);
+      doc.rect(x, y, cellWidth[0], 10, 'F'); // Left cell
+      doc.rect(x + cellWidth[0], y, cellWidth[1], 10, 'F'); // Right cell
+  
+      // Add borders around cells
+      doc.rect(x, y, cellWidth[0], 10); // Left cell border
+      doc.rect(x + cellWidth[0], y, cellWidth[1], 10); // Right cell border
+  
+      // Set font style and size
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0); // Black text for content
+  
+      // Add text to the cells
+      doc.text(line[0], x + 3, y + 7); // Left-aligned text in the first cell
+      doc.text(line[1], x + cellWidth[0] + 3, y + 7); // Left-aligned text in the second cell
+    });
   
     // Footer Section
-    y += 20;
+    const footerY = bankTableY + 50;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text("Thank you for your business!", 14, y);
-    y += 5;
-    doc.text("For inquiries, contact: +91 123 456 7890 | support@royalandco.com", 14, y);
-    doc.text("www.royalandco.com", 14, y + 10);
+    doc.text("Thank you for your business!", 14, footerY);
+    doc.text("For inquiries, contact: +91 123 456 7890 | support@royalandco.com", 14, footerY + 5);
+    doc.text("www.royalandco.com", 14, footerY + 10);
+  
+    // Add note about the bill being computer-generated
   
     // Save the PDF
     const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
-    doc.save(`RC-Invoice-${timestamp}.pdf`); 
+    doc.save(`RC-Invoice-${timestamp}.pdf`);
   };
-
+  
+  
 
   //now one last thing:
   /*
@@ -268,9 +345,9 @@ export default function BillInt() {
         const resp = await axios.post("https://royalco-api.onrender.com/api/FinalTransactionApi",{Products:addedProducts,CreditAmount:creditAmount,CustomerDetails:CustomerDetails[0]});
         if(resp.status === 200){
           triggerToast('😀 Bill Successfull!');
-          setTimeout(function() {
-            window.location.href = "/";  
-        }, 3000);
+        //   setTimeout(function() {
+        //     window.location.href = "/";  
+        // }, 3000);
         }
       } catch (error) {
         console.log(error)
