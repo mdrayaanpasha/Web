@@ -1,4 +1,4 @@
-import logo from "../assets/imgs/logo.avif"
+import logo from "../assets/imgs/logo.jpeg"
 
 export default function Nav() {
     return (
@@ -7,7 +7,7 @@ export default function Nav() {
                 <img 
                     src={logo} 
                     alt="Logo" 
-                    className="h-12 w-12 object-contain rounded-full " 
+                    className="h-12 w-12 object-contain  " 
                 />
             </div>
         </header>
