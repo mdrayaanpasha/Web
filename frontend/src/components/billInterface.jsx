@@ -321,9 +321,9 @@ export default function BillInt() {
     const footerY = bankTableY + 50;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text("Thank you for your business!", 14, footerY);
-    doc.text("For inquiries, contact: +91 123 456 7890 | support@royalandco.com", 14, footerY + 5);
-    doc.text("www.royalandco.com", 14, footerY + 10);
+    doc.text("Thank you for choosing Royal and Co – trusted by families around the world!", 14, footerY);
+    doc.text("For inquiries, contact: 080-2227981 | support@royalandco.com", 14, footerY + 5);
+    doc.text("Explore more of our products at www.royalandco.in", 14, footerY + 10);
   
     // Add note about the bill being computer-generated
   
