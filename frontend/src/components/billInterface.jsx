@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Button from "./button";
 import Toast from "./toast";
 import { jsPDF } from "jspdf";  // Import jsPDF for PDF generation
-import logo from "../assets/imgs/R&C_logo.png"
+import logo from "../assets/imgs/logo.jpeg"
 import Nav from "./Nav"
 
 export default function BillInt() {
@@ -124,7 +124,7 @@ export default function BillInt() {
     // Add Logo at the top
     const logoWidth = 30; // Adjust width
     const logoHeight = 30; // Adjust height
-    doc.addImage(logo, 'PNG', 8, 5, logoWidth, logoHeight);
+    doc.addImage(logo, 'JPEG', 8, 5, logoWidth, logoHeight);
   
     // Company Details - Centered and Professional
     doc.setFont('helvetica', 'bold');
