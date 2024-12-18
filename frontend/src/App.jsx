@@ -9,6 +9,7 @@ import ProductAnalysis from './components/Prod-Analysis';
 import CustomerAnalysis from './components/CustomerAnalysis';
 import CentralProductAnalysis from './components/P-Analysis';
 import CentralCustomerAnalysis from './components/C-Analysis';
+import Invoice from './components/invoice';
 const App = () => {
     return (
         <Router>
@@ -21,6 +22,8 @@ const App = () => {
             <Route path="/customer-analysis" element={<CustomerAnalysis/>}/>
             <Route path='/PA' element={<CentralProductAnalysis/>}></Route>
             <Route path='/CA' element={<CentralCustomerAnalysis/>}></Route>
+            <Route path='/invoice' element={<Invoice/>}></Route>
+
             </Routes>
         </Router>
     );

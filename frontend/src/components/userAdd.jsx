@@ -7,6 +7,7 @@ export default function UserAuth() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+  const [GST,setGST] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,10 +18,11 @@ export default function UserAuth() {
     }
 
     try {
-      const response = await axios.post("https://royalco-api.onrender.com/api/auth", {
+      const response = await axios.post("http://localhost:5000/api/auth", {
         Name: name,
         Email: email,
         Phone: phone,
+        GST:GST,
       });
 
       if (response.status === 200) {
@@ -73,6 +75,17 @@ export default function UserAuth() {
               onChange={(e) => setPhone(e.target.value)}
               className="w-full px-4 py-2 border border-black rounded-md"
               placeholder="Enter your phone number"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-black">Customer's GST Number</label>
+            <input
+              type="text"
+              value={GST}
+              onChange={(e) => setGST(e.target.value)}
+              className="w-full px-4 py-2 border border-black rounded-md"
+              placeholder="Enter Customers GST"
             />
           </div>
 
