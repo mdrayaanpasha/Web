@@ -10,6 +10,7 @@ import CustomerAnalysis from './components/CustomerAnalysis';
 import CentralProductAnalysis from './components/P-Analysis';
 import CentralCustomerAnalysis from './components/C-Analysis';
 import Invoice from './components/invoice';
+import BillRepo from './components/billRepo';
 const App = () => {
     return (
         <Router>
@@ -18,6 +19,7 @@ const App = () => {
             <Route path='/ProductAdd' element={<ProductAdd />} />
             <Route path='/userAdd' element={<UserAuth />} />
             <Route path='/billing' element={<BillInt />} />
+            <Route path='/bill-repo' element={<BillRepo />} />
             <Route path="/product-analysis" element={<ProductAnalysis/>}/>
             <Route path="/customer-analysis" element={<CustomerAnalysis/>}/>
             <Route path='/PA' element={<CentralProductAnalysis/>}></Route>
