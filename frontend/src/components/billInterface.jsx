@@ -20,6 +20,7 @@ export default function BillInt() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [creditAmount, setCreditAmount] = useState(0);
+  const [transactionData,setTransactionData] = useState(null)
 
 
   // GST state and total amount
@@ -118,219 +119,17 @@ export default function BillInt() {
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    let y = 48; 
-    
-    // Add Logo at the top
-    const logoWidth = 30; // Adjust width
-    const logoHeight = 30; // Adjust height
-    doc.addImage(logo, 'JPEG', 8, 5, logoWidth, logoHeight);
   
-    // Company Details - Centered and Professional
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22); // Larger font size for company name
-    const companyName = "Royal and Co";
-    const companyNameWidth = doc.getStringUnitWidth(companyName) * doc.getFontSize() / doc.internal.scaleFactor;
-    const centerX = (doc.internal.pageSize.width - companyNameWidth) / 2;
-    doc.text(companyName, centerX, 18);
-  
-    // Address Details
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    const address = [
-      "FMCG Manufacturer in Bengaluru, Karnataka",
-      "Address: 23, Wellington St, Richmond Town,",
-      "Bengaluru, Karnataka 560025"
-    ];
-  
-    address.forEach((line, index) => {
-      const lineWidth = doc.getStringUnitWidth(line) * doc.getFontSize() / doc.internal.scaleFactor;
-      const lineCenterX = (doc.internal.pageSize.width - lineWidth) / 2;
-      doc.text(line, lineCenterX, 25 + index * 5);
-    });
-  
-    // Separator Line after company address
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(0, 0, 0);  // Black color
-    doc.line(14, 40, 200, 40);  // Horizontal line
-  
-    // Add gap after the separator line
-  
-    // Invoice Title
-    doc.setFontSize(15);
-    doc.setFont('helvetica', 'bold');
-    doc.text("Invoice", 90, y);
-  
-    // Add date to the right of the Invoice title
-    const date = new Date().toLocaleDateString('en-IN');
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(date, 180, y + 7);
-  
-    // Customer Details Section (Modern Table)
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    let customerY = y + 15;
-  
-    const customerDetails = [
-      ['Customer', CustomerDetails[0].Name],
-      ['Phone', CustomerDetails[0].Phone],
-      ['Email', CustomerDetails[0].Email],
-    ];
-  
-    const sectionStartX = 14;
-    const sectionStartY = customerY;
-    const labelWidth = 40;
-    const fieldWidth = 90;
-  
-    // Draw the customer details as labeled sections with less gap
-    customerDetails.forEach((detail, index) => {
-      const y = sectionStartY + index * 9; // Reduced the gap between rows to 9
-  
-      // Label (e.g., Customer, Phone, Email)
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text(detail[0], sectionStartX, y); 
-  
-      // Field value (e.g., Customer Name, Phone number, Email)
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(detail[1], sectionStartX + labelWidth, y); 
-    });
-  
-    // Line Separator after customer table
-    y = customerY + 30;
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(200, 200, 200);
-    doc.line(14, y, 200, y);
-  
-    // Product Table Header
-    y += 8;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Product', 14, y);
-    doc.text('Quantity', 90, y);
-    doc.text('Price (unit)', 130, y);
-    doc.text('GST', 160, y);
-    doc.text('Total', 190, y);
-  
-    // Line separator after table header
-    doc.setLineWidth(0.5);
-    doc.line(14, y + 5, 200, y + 5);
-  
-    // Product Details in the table
-    y += 15;
-    let netAmount = 0;
-    addedProducts.forEach((product) => {
-      const productTotal = product.price * product.quantity;
-      const gstAmount = calculateGST(product.price, product.quantity);
-      const totalAmount = productTotal + gstAmount;
-  
-      doc.setFont('helvetica', 'normal');
-      doc.text(product.name, 14, y);
-      doc.text(String(product.quantity), 90, y);
-      doc.text(product.price.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 130, y);
-      doc.text(gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 160, y);
-      doc.text(totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 190, y);
-  
-      y += 10;
-      netAmount += productTotal;
-    });
-  
-    // Line separator after product list
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(200, 200, 200);
-    doc.line(14, y + 5, 200, y + 5);
-  
-    // Calculate Gross Amount and GST
-    const totalGST = addedProducts.reduce((acc, product) => acc + calculateGST(product.price, product.quantity), 0);
-    const grossAmount = netAmount + totalGST;
-  
-    // Add Totals Section
-    y += 15;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Gross Amount', 135, y);
-    doc.text(netAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
-  
-    y += 7;
-    doc.text('Total GST', 135, y);
-    doc.text(totalGST.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
-  
-    
-  
-    // Add Credit Section
-    if (creditAmount > 0) {
-      y += 7;
-      doc.setFont('helvetica', 'bold');
-      doc.text('Credit Amount', 135, y);
-      doc.text(creditAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
-  
-      y += 7;
-      const remainingAmount = grossAmount - creditAmount;
-      doc.text('Paid Amount', 135, y);
-      doc.text(remainingAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
-    }
+    window.location.href=`./invoice?id=${transactionData._id}`
 
-    y += 7;
-    doc.text('Net Amount', 135, y);
-    doc.text(grossAmount.toLocaleString('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), 180, y);
-  
-    // Line separator for totals
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(140, 140,140);
-    doc.line(14, y + 10, 200, y + 10);
-  
-
-
-    doc.text("Company Bank Details", 13, y+20);
-
-    // Bank Details Section (Modern Table)
-    const bankDetails = [
-      ['Bank Name', 'AXIS BANK LTD'],
-      ['A/c No', '923020000708063'],
-      ['Branch & IFSC', 'JC ROAD,BANGALORE 560002 - UTIBO001688']
-    ];
-  
-    // Draw the bank table
-    const bankTableY = y + 25;
-    bankDetails.forEach((line, index) => {
-      const cellWidth = [60, 130];
-      const x = 14;
-      const y = bankTableY + index * 12;
-  
-      // Set light grey color for cell background
-      doc.setFillColor(255, 255, 255);
-      doc.rect(x, y, cellWidth[0], 10, 'F'); // Left cell
-      doc.rect(x + cellWidth[0], y, cellWidth[1], 10, 'F'); // Right cell
-  
-      // Add borders around cells
-      doc.rect(x, y, cellWidth[0], 10); // Left cell border
-      doc.rect(x + cellWidth[0], y, cellWidth[1], 10); // Right cell border
-  
-      // Set font style and size
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(0, 0, 0); // Black text for content
-  
-      // Add text to the cells
-      doc.text(line[0], x + 3, y + 7); // Left-aligned text in the first cell
-      doc.text(line[1], x + cellWidth[0] + 3, y + 7); // Left-aligned text in the second cell
-    });
-  
-    // Footer Section
-    const footerY = bankTableY + 50;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text("Thank you for choosing Royal and Co – trusted by families around the world!", 14, footerY);
-    doc.text("For inquiries, contact: 080-2227981", 14, footerY + 5);
-    doc.text("Explore more of our products at www.royalandco.in", 14, footerY + 10);
-  
-    // Add note about the bill being computer-generated
-  
-    // Save the PDF
-    const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
-    doc.save(`RC-Invoice-${timestamp}.pdf`);
   };
+
+  useEffect(()=>{
+    if(transactionData){
+      console.log(transactionData);
+    }
+  },transactionData)
+
   
   
 
@@ -345,6 +144,7 @@ export default function BillInt() {
         const resp = await axios.post("https://royalco-api.onrender.com/api/FinalTransactionApi",{Products:addedProducts,CreditAmount:creditAmount,CustomerDetails:CustomerDetails[0]});
         if(resp.status === 200){
           triggerToast('😀 Bill Successfull!');
+          setTransactionData(resp.data.Data)
         //   setTimeout(function() {
         //     window.location.href = "/";  
         // }, 3000);
