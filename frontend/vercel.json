@@ -33,6 +33,14 @@
         {
             "src": "/CA",
             "dest": "/"
+        },
+        {
+            "src": "/bill-repo",
+            "dest": "/"
+        },
+        {
+            "src": "/invoice",
+            "dest": "/"
         }
     ]
 }
