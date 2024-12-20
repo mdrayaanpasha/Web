@@ -20,7 +20,7 @@ const Invoice = () => {
   // Fetch transaction details
   async function fetchData(id) {
     try {
-      const resp = await axios.post("http://localhost:5000/api/getTransactionsById", { Id: id });
+      const resp = await axios.post("https://royalco-api.onrender.com/api/getTransactionsById", { Id: id });
       setData(resp.data.D);
       await fetchCustomer(resp.data.D.CID); // Fetch customer data based on customer ID
       console.log(resp.data.D);
