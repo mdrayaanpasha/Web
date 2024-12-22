@@ -136,6 +136,8 @@ const Invoice = () => {
             <thead>
               <tr className="bg-gray-200 text-sm">
                 <th className="border border-gray-300 p-2">Product Name</th>
+                <th className="border border-gray-300 p-2">HSN</th>
+
                 <th className="border border-gray-300 p-2">Price</th>
                 <th className="border border-gray-300 p-2">Unit</th>
                 <th className="border border-gray-300 p-2">CGST</th>
@@ -154,6 +156,8 @@ const Invoice = () => {
                 return (
                   <tr key={index} className="hover:bg-gray-100 text-sm">
                     <td className="border border-gray-300 p-2">{product.ProductName}</td>
+                    <td className="border border-gray-300 p-2">{product.HSN}</td>
+
                     <td className="border border-gray-300 p-2">{formatNumber(product.ProductPrice)}</td>
                     <td className="border border-gray-300 p-2">{formatNumber(product.Unit)}</td>
                     <td className="border border-gray-300 p-2">{formatNumber(cgstAmount)}</td>
