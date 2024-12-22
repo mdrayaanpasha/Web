@@ -61,6 +61,18 @@ export default function BillInt() {
     calculateTotal();
   }, [addedProducts]);
 
+
+  useEffect(()=>{
+
+    if(Products){
+      let arr=[]
+      for(let ele of Products){
+        arr.push(ele.name)
+      }
+      console.log(arr)
+    }
+  },[Products])
+
   const calculateGST = (price, quantity) => {
     return (price * quantity * gstRate) / 100;
   };
@@ -120,15 +132,16 @@ export default function BillInt() {
 
   const generatePDF = () => {
   
-    window.location.href=`./invoice?id=${transactionData._id}`
-
+    
   };
 
   useEffect(()=>{
     if(transactionData){
-      console.log(transactionData);
+      window.location.href=`./invoice?id=${transactionData._id}`
+
+     
     }
-  },transactionData)
+  },[transactionData])
 
   
   
@@ -141,7 +154,7 @@ export default function BillInt() {
 
     const FinalAPI = async()=>{
       try {
-        const resp = await axios.post("https://royalco-api.onrender.com/api/FinalTransactionApi",{Products:addedProducts,CreditAmount:creditAmount,CustomerDetails:CustomerDetails[0]});
+        const resp = await axios.post("http://localhost:5000/api/FinalTransactionApi",{Products:addedProducts,CreditAmount:creditAmount,CustomerDetails:CustomerDetails[0]});
         if(resp.status === 200){
           triggerToast('😀 Bill Successfull!');
           setTransactionData(resp.data.Data)

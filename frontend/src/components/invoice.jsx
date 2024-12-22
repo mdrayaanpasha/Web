@@ -32,9 +32,8 @@ const Invoice = () => {
   // Fetch customer details by customer ID
   async function fetchCustomer(id) {
     try {
-      const resp = await axios.post("http://localhost:5000/api/getCustomerById", { Id: id });
+      const resp = await axios.post("https://royalco-api.onrender.com/api/getCustomerById", { Id: id });
       setCustomerData(resp.data.D);
-      console.log(resp.data.D);
     } catch (error) {
       console.error(error);
     }
@@ -109,7 +108,7 @@ const Invoice = () => {
       {data ? (
         <>
           <div className="flex justify-between mb-4">
-            <p className="font-semibold text-black">Invoice ID: <span className="font-normal text-gray-600">{invoiceId}</span></p>
+            <p className="font-semibold text-black">Invoice ID: <span className="font-normal text-gray-600">{data.TID}</span></p>
             <p className="font-semibold text-black">Date: <span className="font-normal text-gray-600">{data.D}/{data.M}/{data.Y}</span></p>
           </div>
 

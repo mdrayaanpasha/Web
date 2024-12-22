@@ -9,7 +9,7 @@ export default function BillRepo() {
 
     async function FetchRepo(data) {
         try {
-            const resp = await axios.post("http://localhost:5000/api/retriveTransactions", data);
+            const resp = await axios.post("https://royalco-api.onrender.com/api/retriveTransactions", data);
             console.log(resp.data.D);
             setDisplayData(resp.data.D);
         } catch (error) {
