@@ -38,9 +38,10 @@ export default function BillInt() {
   };
   const fetchAllProducts = async () => {
     try {
-      const resp = await axios.get("https://royalco-api.onrender.com/api/getAllProduct");
+      const resp = await axios.get("api/getAllProduct");
       if (resp.status === 200) {
-        setProducts(resp.data.Data || []);
+        console.log("DATA WE GOT: ",resp.data.Data)
+        setProducts(resp.data.Data || []); 
       } else {
         alert(`Unexpected response: ${resp.status}`);
       }
@@ -86,6 +87,10 @@ export default function BillInt() {
     });
     setTotalAmount(newTotal);
   };
+
+  useEffect(()=>{
+    console.log(addedProducts)
+  },[addedProducts])
 
   const handleAddProduct = () => {
     if (selectedProduct && price) {
