@@ -154,7 +154,7 @@ export default function BillInt() {
 
     const FinalAPI = async()=>{
       try {
-        const resp = await axios.post("http://localhost:5000/api/FinalTransactionApi",{Products:addedProducts,CreditAmount:creditAmount,CustomerDetails:CustomerDetails[0]});
+        const resp = await axios.post("https://royalco-api.onrender.com/api/FinalTransactionApi",{Products:addedProducts,CreditAmount:creditAmount,CustomerDetails:CustomerDetails[0]});
         if(resp.status === 200){
           triggerToast('😀 Bill Successfull!');
           setTransactionData(resp.data.Data)
